@@ -1,12 +1,12 @@
 variable "provider_region" {
-  type        = string
-  default     = "us-west-1"
+  type = string
+  #   default     = "us-west-1"
   description = "provider_region"
 }
 
 variable "provider_profile" {
-  type        = string
-  default     = "dev"
+  type = string
+  #   default     = "dev"
   description = "dev/demo"
 }
 

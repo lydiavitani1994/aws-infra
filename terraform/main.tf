@@ -10,7 +10,7 @@ terraform {
 }
 
 # provider
-module "dev_provider" {
+module "provider" {
   source = "./vpc_networking"
 
   provider_region  = var.provider_region
