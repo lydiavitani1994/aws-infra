@@ -34,13 +34,16 @@ resource "aws_internet_gateway" "igw" {
 }
 
 # subnet
+locals {
+  zone_size = length(data.aws_availability_zones.available.names)
+}
 module "public_subnet_1" {
   source  = "./subnet"
 
   cidr_block  = var.pub_sub1_cidr
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = true
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone = data.aws_availability_zones.available.names[0 % local.zone_size]
   tag_name = "public_subnet_1_${aws_vpc.vpc.id}"
 }
 
@@ -50,7 +53,7 @@ module "public_subnet_2" {
   cidr_block  = var.pub_sub2_cidr
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = true
-  availability_zone = data.aws_availability_zones.available.names[1]
+  availability_zone = data.aws_availability_zones.available.names[1%local.zone_size]
   tag_name = "public_subnet_2_${aws_vpc.vpc.id}"
 }
 
@@ -60,7 +63,7 @@ module "public_subnet_3" {
   cidr_block  = var.pub_sub3_cidr
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = true
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone = data.aws_availability_zones.available.names[2%local.zone_size]
   tag_name = "public_subnet_3_${aws_vpc.vpc.id}"
 }
 
@@ -70,7 +73,7 @@ module "private_subnet_1" {
   cidr_block  = var.pri_sub1_cidr
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = false
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone = data.aws_availability_zones.available.names[0%local.zone_size]
   tag_name = "private_subnet_1_${aws_vpc.vpc.id}"
 }
 
@@ -80,7 +83,7 @@ module "private_subnet_2" {
   cidr_block  = var.pri_sub2_cidr
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = false
-  availability_zone = data.aws_availability_zones.available.names[1]
+  availability_zone = data.aws_availability_zones.available.names[1%local.zone_size]
   tag_name = "private_subnet_2_${aws_vpc.vpc.id}"
 }
 
@@ -90,7 +93,7 @@ module "private_subnet_3" {
   cidr_block  = var.pri_sub3_cidr
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = false
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone = data.aws_availability_zones.available.names[2%local.zone_size]
   tag_name = "private_subnet_3_${aws_vpc.vpc.id}"
 }
 
