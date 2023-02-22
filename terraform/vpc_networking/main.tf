@@ -1,11 +1,11 @@
-# provider
-provider "aws" {
-  region  = var.provider_region
-  profile = var.provider_profile
-}
+# provider "aws" {
+#   region  = var.provider_region
+#   profile = var.provider_profile
+# }
 
 #vpc resource
 resource "aws_vpc" "vpc" {
+  enable_dns_hostnames = true
   cidr_block = var.vpc_cidr
   tags = {
     Name = var.vpc_tag_name
@@ -65,6 +65,10 @@ module "public_subnet_3" {
   map_public_ip_on_launch = true
   availability_zone = data.aws_availability_zones.available.names[2%local.zone_size]
   tag_name = "public_subnet_3_${aws_vpc.vpc.id}"
+}
+
+locals {
+  public_subnet_ids = [module.public_subnet_1.subnet.id, module.public_subnet_2.subnet.id, module.public_subnet_3.subnet.id]
 }
 
 module "private_subnet_1" {

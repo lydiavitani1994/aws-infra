@@ -1,7 +1,7 @@
 # provider
 variable "provider_region" {
   type        = string
-  default = "us-west-2"
+  default = "us-west-1"
   description = "provider_region"
 }
 
