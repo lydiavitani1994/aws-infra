@@ -34,6 +34,7 @@ module "security_group" {
 module "ec2_instance" {
   source = "./ec2_instance"
 
+  # filter_id = var.ami_id
   public_subnet_ids = module.vpc.public_subnet_ids
   security_group_id = module.security_group.security_group.id
 }

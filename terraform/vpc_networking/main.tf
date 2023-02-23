@@ -1,8 +1,3 @@
-# provider "aws" {
-#   region  = var.provider_region
-#   profile = var.provider_profile
-# }
-
 #vpc resource
 resource "aws_vpc" "vpc" {
   enable_dns_hostnames = true

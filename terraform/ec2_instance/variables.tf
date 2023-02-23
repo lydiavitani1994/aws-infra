@@ -49,6 +49,11 @@ variable "filter_most_recent" {
   description = "filter_most_recent"
 }
 
+# variable "filter_id" {
+#   type = string
+#   description = "filter_id"
+# }
+
 variable "filter_name_value" {
   type = string
   default = "yumeng_*"
