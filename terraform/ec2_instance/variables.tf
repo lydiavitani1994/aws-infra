@@ -42,6 +42,11 @@ variable "volume_type" {
   description = "volume_type"
 }
 
+variable "delete_on_termination" {
+  type = bool
+  default = true
+  description = "delete_on_termination"
+}
 
 variable "filter_most_recent" {
   type = bool

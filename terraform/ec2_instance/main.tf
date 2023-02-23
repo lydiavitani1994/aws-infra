@@ -28,6 +28,7 @@ resource "aws_instance" "instance" {
 
   # root disk
   root_block_device {
+    delete_on_termination = var.delete_on_termination
     volume_size           = var.volume_size
     volume_type           = var.volume_type
   }
