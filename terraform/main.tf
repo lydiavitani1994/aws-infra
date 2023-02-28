@@ -23,12 +23,35 @@ module "vpc" {
   vpc_tag_name     = var.vpc_tag_name
 }
 
-module "security_group" {
-  source = "./security_group"
+module "application_security_group" {
+  source = "./application_security_group"
 
-  # vpc_cidr_block = var.vpc_cidr_block
   vpc_id = module.vpc.vpc.id
-  # aws_vpc = module.provider.vpc
+}
+
+
+
+module "database_security_group" {
+  source = "./database_security_group"
+
+  source_security_group_id = module.application_security_group.security_group.id
+  vpc_id = module.vpc.vpc.id
+}
+
+module "s3_bucket" {
+  source = "./s3_bucket"
+}
+
+module "db_parameter_group" {
+  source = "./db_parameter_group"
+}
+
+module "rds_instance" {
+  source = "./rds_instance"
+
+  private_subnet_ids = module.vpc.private_subnet_ids
+  parameter_group_name = module.db_parameter_group.db_parameter_group.name
+  security_group_id = module.database_security_group.security_group.id
 }
 
 module "ec2_instance" {
@@ -36,8 +59,9 @@ module "ec2_instance" {
 
   # filter_id = var.ami_id
   public_subnet_ids = module.vpc.public_subnet_ids
-  security_group_id = module.security_group.security_group.id
+  security_group_id = module.application_security_group.security_group.id
+  db_username = module.rds_instance.db_instance.username
+  db_password = module.rds_instance.db_instance.password
+  db_hostname = module.rds_instance.db_instance.address
+  s3_bucket_name = module.s3_bucket.s3_bucket.bucket
 }
-
-
-

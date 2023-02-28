@@ -76,3 +76,24 @@ variable "filter_virtualization_type_value" {
   default = "hvm"
   description = "filter_virtualization_type_value"
 }
+
+variable "db_username" {
+  type = string
+  description = "db_username"
+}
+
+variable "db_password" {
+  type = string
+  description = "db_password"
+}
+
+variable "db_hostname" {
+  type = string
+  description = "db_hostname"
+}
+
+variable "s3_bucket_name" {
+  type = string
+  description = "s3_bucket_name"
+}
+

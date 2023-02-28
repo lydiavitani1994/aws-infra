@@ -62,10 +62,6 @@ module "public_subnet_3" {
   tag_name = "public_subnet_3_${aws_vpc.vpc.id}"
 }
 
-locals {
-  public_subnet_ids = [module.public_subnet_1.subnet.id, module.public_subnet_2.subnet.id, module.public_subnet_3.subnet.id]
-}
-
 module "private_subnet_1" {
   source  = "./subnet"
 
@@ -96,6 +92,11 @@ module "private_subnet_3" {
   tag_name = "private_subnet_3_${aws_vpc.vpc.id}"
 }
 
+locals {
+  private_subnet_ids = [module.private_subnet_1.subnet.id, module.private_subnet_2.subnet.id, module.private_subnet_3.subnet.id]
+  public_subnet_ids = [module.public_subnet_1.subnet.id, module.public_subnet_2.subnet.id, module.public_subnet_3.subnet.id]
+}
+
 #NAT Gateway object and attachment of the Elastic IP Address from above
 resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.nat.id
@@ -108,7 +109,7 @@ resource "aws_nat_gateway" "ngw" {
 
 # route_table
 module "public_route_table" {
-  source  = "./route_table"
+  source  = "./public_route_table"
 
   vpc_id = aws_vpc.vpc.id
   gateway_id = aws_internet_gateway.igw.id
@@ -116,12 +117,13 @@ module "public_route_table" {
 }
 
 module "private_route_table" {
-  source  = "./route_table"
+  source  = "./private_route_table"
 
   vpc_id = aws_vpc.vpc.id
-  gateway_id = aws_nat_gateway.ngw.id
+  # gateway_id = aws_nat_gateway.ngw.id
   tag_name = "private_route_table_${aws_vpc.vpc.id}"
 }
+
 
 # Associate Route Table to Subnets
 module "public_route_table_a_1" {
