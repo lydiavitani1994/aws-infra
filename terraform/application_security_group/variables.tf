@@ -12,7 +12,7 @@ variable "vpc_id" {
 variable "description" {
   type        = string
   description = "Allow TLS inbound traffic"
-  default = "value"
+  default = "application security group"
 }
 
 variable "tag_name" {

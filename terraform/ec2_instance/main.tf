@@ -33,6 +33,20 @@ resource "aws_instance" "instance" {
     volume_type           = var.volume_type
   }
 
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo chmod 777 -R /etc/profile.d
+              cd /etc/profile.d
+              touch db_setenv.sh
+              chmod +x db_setenv.sh
+              echo "#!/bin/sh" > db_setenv.sh
+              echo "export DB_USERNAME=${var.db_username}" >> db_setenv.sh
+              echo "export DB_PASSWORD=${var.db_password}" >> db_setenv.sh
+              echo "export DB_HOSTNAME=${var.db_hostname}" >> db_setenv.sh
+              echo "export S3_BUCKET_NAME=${var.s3_bucket_name}" >> db_setenv.sh
+              /bin/bash /etc/profile.d/db_setenv.sh start
+              EOF
+              
   tags = {
     Name = var.tag_name
   }
