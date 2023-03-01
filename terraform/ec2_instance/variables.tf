@@ -97,3 +97,8 @@ variable "s3_bucket_name" {
   description = "s3_bucket_name"
 }
 
+variable "iam_instance_profile" {
+  type = string
+  description = "iam_instance_profile_name"
+}
+
