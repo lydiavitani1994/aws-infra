@@ -54,6 +54,12 @@ module "rds_instance" {
   security_group_id = module.database_security_group.security_group.id
 }
 
+module "iam_role" {
+  source = "./iam_role"
+
+  s3_bucket_name = module.s3_bucket.s3_bucket.bucket
+}
+
 module "ec2_instance" {
   source = "./ec2_instance"
 
@@ -64,4 +70,5 @@ module "ec2_instance" {
   db_password = module.rds_instance.db_instance.password
   db_hostname = module.rds_instance.db_instance.address
   s3_bucket_name = module.s3_bucket.s3_bucket.bucket
+  iam_instance_profile = module.iam_role.iam_instance_profile.name
 }

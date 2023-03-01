@@ -25,6 +25,7 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids = [var.security_group_id]
   subnet_id              = var.public_subnet_ids[0]
   associate_public_ip_address = var.associate_public_ip_address
+  iam_instance_profile = var.iam_instance_profile
 
   # root disk
   root_block_device {
