@@ -19,3 +19,9 @@ variable "source_security_group_id" {
   type        = string
   description = "source_security_group_id"
 }
+
+variable "vpc_cidr_block" {
+  type        = string
+  description = "vpc_cidr_block"
+  default = "0.0.0.0/0"
+}

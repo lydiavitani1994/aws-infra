@@ -27,6 +27,7 @@ module "application_security_group" {
   source = "./application_security_group"
 
   vpc_id = module.vpc.vpc.id
+  # des_security_group_id = module.application_security_group.security_group.id
 }
 
 

@@ -20,3 +20,8 @@ variable "tag_name" {
   description = "tag_name"
   default = "application"
 }
+
+# variable "des_security_group_id" {
+#   type        = string
+#   description = "des_security_group_id"
+# }
