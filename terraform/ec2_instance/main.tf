@@ -36,17 +36,32 @@ resource "aws_instance" "instance" {
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo chmod 777 -R /etc/profile.d
-              cd /etc/profile.d
-              touch db_setenv.sh
-              chmod +x db_setenv.sh
-              echo "#!/bin/sh" > db_setenv.sh
-              echo "export DB_USERNAME=${var.db_username}" >> db_setenv.sh
-              echo "export DB_PASSWORD=${var.db_password}" >> db_setenv.sh
-              echo "export DB_HOSTNAME=${var.db_hostname}" >> db_setenv.sh
-              echo "export S3_BUCKET_NAME=${var.s3_bucket_name}" >> db_setenv.sh
-              /bin/bash /etc/profile.d/db_setenv.sh start
+              chmod +x /etc/environment
+              echo "#!/bin/sh" > /etc/environment
+              echo "DB_USERNAME=${var.db_username}" >> /etc/environment
+              echo "DB_PASSWORD=${var.db_password}" >> /etc/environment
+              echo "DB_HOSTNAME=${var.db_hostname}" >> /etc/environment
+              echo "S3_BUCKET_NAME=${var.s3_bucket_name}" >> /etc/environment
+              sudo source /etc/environment
               EOF
+# 
+# # sudo chmod 777 -R /etc/profile.d
+              # cd /etc/profile.d
+              # touch db_setenv.sh             
+#/bin/bash /etc/profile.d/db_setenv.sh start
+  # user_data     = <<-EOF
+  #   #cloud-config
+  #   write_files:
+  #     - path: /etc/profile.d/my-env-vars.sh
+  #       permissions: '0755'
+  #       owner: root
+  #       content: |
+  #         #!/bin/bash
+  #         export DB_USERNAME=${var.db_username}
+  #         export DB_PASSWORD=${var.db_password}
+  #         export DB_HOSTNAME=${var.db_hostname}
+  #         export S3_BUCKET_NAME=${var.s3_bucket_name}
+  # EOF
               
   tags = {
     Name = var.tag_name

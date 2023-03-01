@@ -88,7 +88,7 @@ variable "username" {
 variable "password" {
   type        = string
   description = "password"
-  default = "password"
+  default = "csye6225password"
 }
 
 variable "db_name" {
