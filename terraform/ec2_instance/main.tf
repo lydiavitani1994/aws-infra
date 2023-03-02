@@ -42,9 +42,12 @@ resource "aws_instance" "instance" {
               echo "DB_PASSWORD=${var.db_password}" >> /etc/environment
               echo "DB_HOSTNAME=${var.db_hostname}" >> /etc/environment
               echo "S3_BUCKET_NAME=${var.s3_bucket_name}" >> /etc/environment
+              echo "PROFILE_NAME=${var.iam_instance_profile}" >> /etc/environment
+              echo "REGION=${var.region}" >> /etc/environment
               sudo source /etc/environment
               EOF
-# 
+# echo "S3_SECRET_ACCESS=${var.s3_secret_access}" >> /etc/environment
+
 # # sudo chmod 777 -R /etc/profile.d
               # cd /etc/profile.d
               # touch db_setenv.sh             

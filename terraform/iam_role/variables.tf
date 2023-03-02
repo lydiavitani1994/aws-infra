@@ -20,3 +20,9 @@ variable "iam_role_name" {
   description = "iam_role_name"
   default = "EC2-CSYE6225"
 }
+
+variable "pgp_key" {
+  type        = string
+  description = "pgp_key"
+  default = "keybase:some_person_that_exists"
+}
