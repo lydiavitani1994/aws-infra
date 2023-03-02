@@ -3,3 +3,9 @@ variable "sse_algorithm" {
   description = "sse_algorithm"
   default = "AES256"
 }
+
+variable "acl" {
+  type        = string
+  description = "acl"
+  default = "private"
+}

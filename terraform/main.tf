@@ -72,4 +72,8 @@ module "ec2_instance" {
   db_hostname = module.rds_instance.db_instance.address
   s3_bucket_name = module.s3_bucket.s3_bucket.bucket
   iam_instance_profile = module.iam_role.iam_instance_profile.name
+  # s3_access_key = module.iam_role.access_key_id
+  # s3_secret_access = module.iam_role.secret_access_key
+  region = var.provider_region
+  # profile_name = module.iam_role.iam_instance_profile.name
 }

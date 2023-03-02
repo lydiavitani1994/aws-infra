@@ -23,8 +23,11 @@ resource "aws_iam_policy" "s3_policy" {
                 "s3:GetBucketLocation",
                 "s3:GetObject",
                 "s3:PutObject",
+                "s3:DeleteObject",
                 "s3:ListMultipartUploadParts",
-                "s3:AbortMultipartUpload"
+                "s3:AbortMultipartUpload",
+                "s3:GetObjectVersion",
+                "s3:DeleteObjectVersion"
             ],
             "Effect": "Allow",
             "Resource": [
@@ -88,6 +91,7 @@ resource "aws_iam_policy" "ec2_policy" {
 resource "aws_iam_role" "iam_role" {
   name                = var.iam_role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+  
   # Attach the policy
   inline_policy {
     name = aws_iam_policy.s3_policy.name
@@ -98,15 +102,15 @@ resource "aws_iam_role" "iam_role" {
     name = aws_iam_policy.ec2_policy.name
     policy = aws_iam_policy.ec2_policy.policy
   }
-}
 
-# resource "aws_iam_policy_attachment" "s3_policy_attachment" {
-#   name       = "s3_policy_attachment"
-#   roles      = [aws_iam_role.iam_role.name]
-#   policy_arn = aws_iam_policy.iam_policy.arn
-# }
+}
 
 resource "aws_iam_instance_profile" "iam_instance_profile" {
   name = "${var.iam_role_name}_instance_profile"
   role = aws_iam_role.iam_role.name
 }
+
+# resource "aws_iam_access_key" "iam_access_key" {
+#   user    = aws_iam_role.iam_role.name
+#   pgp_key = var.pgp_key
+# }

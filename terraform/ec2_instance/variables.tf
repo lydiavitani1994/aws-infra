@@ -102,3 +102,25 @@ variable "iam_instance_profile" {
   description = "iam_instance_profile_name"
 }
 
+# variable "s3_access_key" {
+#   type = string
+#   description = "s3_access_key"
+#   default = ""
+# }
+
+# variable "s3_secret_access" {
+#   type = string
+#   description = "s3_secret_access"
+#   default = ""
+# }
+
+variable "region" {
+  type = string
+  description = "region"
+}
+
+# variable "profile_name" {
+#   type = string
+#   description = "profile_name"
+# }
+
