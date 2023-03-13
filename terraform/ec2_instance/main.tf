@@ -71,3 +71,31 @@ resource "aws_instance" "instance" {
   }
 }
 
+
+resource "aws_eip" "eip" {
+  instance = aws_instance.instance.id
+}
+
+
+# provider "aws" {
+#   alias = "dns_zones"
+#   region  = var.region
+#   profile = 
+# }
+
+
+data "aws_route53_zone" "route53_zone" {
+  # provider = "aws.dns_zones"
+  name         = "demo.yumenghuang.me."
+  private_zone = false
+}
+
+resource "aws_route53_record" "webapp" {
+  allow_overwrite = true
+  zone_id = data.aws_route53_zone.route53_zone.zone_id
+  name    = "${data.aws_route53_zone.route53_zone.name}"
+  type    = "A"
+  ttl     = "60"
+  records = ["${aws_eip.eip.public_ip}"]
+}
+
