@@ -86,16 +86,16 @@ resource "aws_eip" "eip" {
 
 data "aws_route53_zone" "route53_zone" {
   # provider = "aws.dns_zones"
-  name         = "demo.yumenghuang.me."
-  private_zone = false
+  name         = "${var.profile_name}.${var.domain}."
+  private_zone = var.private_zone
 }
 
 resource "aws_route53_record" "webapp" {
   allow_overwrite = true
   zone_id = data.aws_route53_zone.route53_zone.zone_id
   name    = "${data.aws_route53_zone.route53_zone.name}"
-  type    = "A"
-  ttl     = "60"
+  type    = var.record_type
+  ttl     = var.record_ttl
   records = ["${aws_eip.eip.public_ip}"]
 }
 
