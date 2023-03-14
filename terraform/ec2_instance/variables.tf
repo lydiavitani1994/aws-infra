@@ -119,8 +119,33 @@ variable "region" {
   description = "region"
 }
 
-# variable "profile_name" {
-#   type = string
-#   description = "profile_name"
-# }
+variable "profile_name" {
+  type = string
+  description = "profile_name"
+}
+
+variable "domain" {
+  type = string
+  description = "domain"
+  default = "yumenghuang.me"
+}
+
+variable "private_zone" {
+  type = bool
+  description = "private_zone"
+  default = false
+}
+
+variable "record_type" {
+  type = string
+  description = "record_type"
+  default = "A"
+}
+
+variable "record_ttl" {
+  type = string
+  description = "record_ttl"
+  default = "60"
+}
+
 
