@@ -11,6 +11,37 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
+resource "aws_iam_policy" "cloudwatch_policy" {
+  name        = var.cloudwatch_policy_name
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:PutMetricData",
+                "ec2:DescribeVolumes",
+                "ec2:DescribeTags",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams",
+                "logs:DescribeLogGroups",
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameter"
+            ],
+            "Resource": "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*"
+        }
+    ]
+})
+}
+
 resource "aws_iam_policy" "s3_policy" {
   name        = var.s3_policy_name
 
@@ -19,15 +50,15 @@ resource "aws_iam_policy" "s3_policy" {
     "Statement": [
         {
             "Action": [
-                "s3:ListBucket",
-                "s3:GetBucketLocation",
+                # "s3:ListBucket",
+                # "s3:GetBucketLocation",
                 "s3:GetObject",
                 "s3:PutObject",
                 "s3:DeleteObject",
-                "s3:ListMultipartUploadParts",
-                "s3:AbortMultipartUpload",
-                "s3:GetObjectVersion",
-                "s3:DeleteObjectVersion"
+                # "s3:ListMultipartUploadParts",
+                # "s3:AbortMultipartUpload",
+                # "s3:GetObjectVersion",
+                # "s3:DeleteObjectVersion",
             ],
             "Effect": "Allow",
             "Resource": [
@@ -101,6 +132,11 @@ resource "aws_iam_role" "iam_role" {
   inline_policy {
     name = aws_iam_policy.ec2_policy.name
     policy = aws_iam_policy.ec2_policy.policy
+  }
+
+  inline_policy {
+    name = aws_iam_policy.cloudwatch_policy.name
+    policy = aws_iam_policy.cloudwatch_policy.policy
   }
 
 }
