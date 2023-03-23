@@ -148,4 +148,76 @@ variable "record_ttl" {
   default = "60"
 }
 
+variable "cloudwatch_config_path" {
+  type = string
+  description = "cloudwatch_config_path"
+  default = "/opt/deployment/cloudwatch_config.json"
+}
+
+variable "cloudwatch_log_group_name" {
+  type = string
+  description = "cloudwatch_log_group_name"
+  default = "csye6225"
+}
+
+variable "cloudwatch_log_stream_name" {
+  type = string
+  description = "cloudwatch_log_stream_name"
+  default = "webapp"
+}
+
+variable "alarm_name" {
+  type = string
+  description = "alarm_name"
+  default = "csye6225"
+}
+
+variable "namespace" {
+  type = string
+  description = "namespace"
+  default = "webapp"
+}
+
+variable "comparison_operator" {
+  type = string
+  description = "comparison_operator"
+  default = "GreaterThanOrEqualToThreshold"
+}
+
+variable "metric_name" {
+  type = string
+  description = "metric_name"
+  default = "API calls count"
+}
+
+variable "statistic" {
+  type = string
+  description = "statistic"
+  default = "Sum"
+}
+
+variable "alarm_description" {
+  type = string
+  description = "alarm_description"
+  default = "This metric monitors API calls count"
+}
+
+variable "evaluation_periods" {
+  type = number
+  description = "evaluation_periods"
+  default = 2
+}
+
+variable "period" {
+  type = number
+  description = "period"
+  default = 120
+}
+
+variable "threshold" {
+  type = number
+  description = "threshold"
+  default = 80
+}
+
 

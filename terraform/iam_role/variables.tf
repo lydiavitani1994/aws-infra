@@ -3,6 +3,12 @@ variable "s3_bucket_name" {
   description = "s3_bucket_name"
 }
 
+variable "cloudwatch_policy_name" {
+  type        = string
+  description = "cloudwatch_policy_name"
+  default = "WebAppCloudWatch"
+}
+
 variable "s3_policy_name" {
   type        = string
   description = "s3_policy_name"

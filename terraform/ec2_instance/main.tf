@@ -44,45 +44,47 @@ resource "aws_instance" "instance" {
               echo "S3_BUCKET_NAME=${var.s3_bucket_name}" >> /etc/environment
               echo "PROFILE_NAME=${var.iam_instance_profile}" >> /etc/environment
               echo "REGION=${var.region}" >> /etc/environment
+              echo "CLOUDWATCH_NAMESPACE=${var.namespace}" >> /etc/environment
               sudo source /etc/environment
-              EOF
-# echo "S3_SECRET_ACCESS=${var.s3_secret_access}" >> /etc/environment
 
-# # sudo chmod 777 -R /etc/profile.d
-              # cd /etc/profile.d
-              # touch db_setenv.sh             
-#/bin/bash /etc/profile.d/db_setenv.sh start
-  # user_data     = <<-EOF
-  #   #cloud-config
-  #   write_files:
-  #     - path: /etc/profile.d/my-env-vars.sh
-  #       permissions: '0755'
-  #       owner: root
-  #       content: |
-  #         #!/bin/bash
-  #         export DB_USERNAME=${var.db_username}
-  #         export DB_PASSWORD=${var.db_password}
-  #         export DB_HOSTNAME=${var.db_hostname}
-  #         export S3_BUCKET_NAME=${var.s3_bucket_name}
-  # EOF
+              sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+                -a fetch-config \
+                -m ec2 \
+                -c file:${var.cloudwatch_config_path} \
+                -s
+              
+              EOF
+
+#sudo touch /etc/start_cloudwatch
+              # chmod -R 777 /etc/start_cloudwatch
+              # echo "#!/bin/sh" > /etc/start_cloudwatch
+              # echo "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+              #   -a fetch-config \
+              #   -m ec2 \
+              #   -c file:/opt/deployment/cloudwatch_config.json \
+              #   -s" >> /etc/start_cloudwatch
+              # sudo sh /etc/start_cloudwatch
+# echo "S3_SECRET_ACCESS=${var.s3_secret_access}" >> /etc/environment
+## sudo chmod o+x /var/log
+              # sudo chmod -R 777 /var/log/webapp.log
               
   tags = {
     Name = var.tag_name
   }
 }
 
+resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
+  name = var.cloudwatch_log_group_name
+}
+
+resource "aws_cloudwatch_log_stream" "cloudwatch_log_stream" {
+  name           = var.cloudwatch_log_stream_name
+  log_group_name = aws_cloudwatch_log_group.cloudwatch_log_group.name
+}
 
 resource "aws_eip" "eip" {
   instance = aws_instance.instance.id
 }
-
-
-# provider "aws" {
-#   alias = "dns_zones"
-#   region  = var.region
-#   profile = 
-# }
-
 
 data "aws_route53_zone" "route53_zone" {
   # provider = "aws.dns_zones"
@@ -99,3 +101,27 @@ resource "aws_route53_record" "webapp" {
   records = ["${aws_eip.eip.public_ip}"]
 }
 
+resource "aws_cloudwatch_metric_alarm" "cloudwatch_metric_alarm" {
+  alarm_name                = var.alarm_name
+  comparison_operator       = var.comparison_operator
+  evaluation_periods        = var.evaluation_periods
+  metric_name               = var.metric_name
+  namespace                 = var.namespace
+  period                    = var.period
+  statistic                 = var.statistic
+  threshold                 = var.threshold
+  alarm_description         = var.alarm_description
+  insufficient_data_actions = []
+}
+
+# resource "aws_cloudwatch_log_metric_filter" "cloudwatch_log_metric_filter" {
+#   name           = "MyAppAccessCount"
+#   pattern        = ""
+#   log_group_name = aws_cloudwatch_log_group.cloudwatch_log_group.name
+
+#   metric_transformation {
+#     name      = "EventCount"
+#     namespace = "YourNamespace"
+#     value     = "1"
+#   }
+# }
