@@ -73,14 +73,14 @@ resource "aws_instance" "instance" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
-  name = var.cloudwatch_log_group_name
-}
+# resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
+#   name = var.cloudwatch_log_group_name
+# }
 
-resource "aws_cloudwatch_log_stream" "cloudwatch_log_stream" {
-  name           = var.cloudwatch_log_stream_name
-  log_group_name = aws_cloudwatch_log_group.cloudwatch_log_group.name
-}
+# resource "aws_cloudwatch_log_stream" "cloudwatch_log_stream" {
+#   name           = var.cloudwatch_log_stream_name
+#   log_group_name = aws_cloudwatch_log_group.cloudwatch_log_group.name
+# }
 
 resource "aws_eip" "eip" {
   instance = aws_instance.instance.id
@@ -101,18 +101,18 @@ resource "aws_route53_record" "webapp" {
   records = ["${aws_eip.eip.public_ip}"]
 }
 
-resource "aws_cloudwatch_metric_alarm" "cloudwatch_metric_alarm" {
-  alarm_name                = var.alarm_name
-  comparison_operator       = var.comparison_operator
-  evaluation_periods        = var.evaluation_periods
-  metric_name               = var.metric_name
-  namespace                 = var.namespace
-  period                    = var.period
-  statistic                 = var.statistic
-  threshold                 = var.threshold
-  alarm_description         = var.alarm_description
-  insufficient_data_actions = []
-}
+# resource "aws_cloudwatch_metric_alarm" "cloudwatch_metric_alarm" {
+#   alarm_name                = var.alarm_name
+#   comparison_operator       = var.comparison_operator
+#   evaluation_periods        = var.evaluation_periods
+#   metric_name               = var.metric_name
+#   namespace                 = var.namespace
+#   period                    = var.period
+#   statistic                 = var.statistic
+#   threshold                 = var.threshold
+#   alarm_description         = var.alarm_description
+#   insufficient_data_actions = []
+# }
 
 # resource "aws_cloudwatch_log_metric_filter" "cloudwatch_log_metric_filter" {
 #   name           = "MyAppAccessCount"
