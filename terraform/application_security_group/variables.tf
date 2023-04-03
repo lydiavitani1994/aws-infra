@@ -21,6 +21,11 @@ variable "tag_name" {
   default = "application"
 }
 
+variable "source_security_group_id" {
+  type        = string
+  description = "source_security_group_id"
+}
+
 # variable "des_security_group_id" {
 #   type        = string
 #   description = "des_security_group_id"
