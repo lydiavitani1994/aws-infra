@@ -23,14 +23,18 @@ module "vpc" {
   vpc_tag_name = var.vpc_tag_name
 }
 
+module "load_balancer_security_group" {
+  source = "./load_balancer_security_group"
+
+  vpc_id = module.vpc.vpc.id
+}
+
 module "application_security_group" {
   source = "./application_security_group"
 
-  vpc_id = module.vpc.vpc.id
-  # des_security_group_id = module.application_security_group.security_group.id
+  source_security_group_id = module.load_balancer_security_group.security_group.id
+  vpc_id                   = module.vpc.vpc.id
 }
-
-
 
 module "database_security_group" {
   source = "./database_security_group"
@@ -38,6 +42,8 @@ module "database_security_group" {
   source_security_group_id = module.application_security_group.security_group.id
   vpc_id                   = module.vpc.vpc.id
 }
+
+
 
 module "s3_bucket" {
   source = "./s3_bucket"
