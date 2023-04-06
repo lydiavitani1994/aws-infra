@@ -44,15 +44,15 @@ data "template_file" "user_data" {
 # Launch Configuration - launch template
 resource "aws_launch_template" "launch_template" {
   image_id = data.aws_ami.aws_linux_2.id
-  instance_type = "t2.micro"
-  key_name = "ec2"
+  instance_type = var.instance_type
+  key_name = var.key_name
   # vpc_security_group_ids = [var.app_security_group_id]
   user_data = base64encode(data.template_file.user_data.rendered)
   network_interfaces {  # AssociatePublicIpAddress
-    associate_public_ip_address = true
+    associate_public_ip_address = var.associate_public_ip_address
     security_groups = [var.app_security_group_id]
     subnet_id                   = var.public_subnet_ids[0]
-    delete_on_termination       = true 
+    delete_on_termination       = var.delete_on_termination 
   }
   iam_instance_profile { # IAM Role
     name = var.iam_instance_profile
@@ -88,9 +88,9 @@ resource "aws_launch_template" "launch_template" {
 
 
 resource "aws_lb" "lb" {
-  name = "csye6225-lb"
+  name = var.lb_name
   internal = false
-  load_balancer_type = "application"
+  load_balancer_type = var.load_balancer_type
 
   subnets            = var.unique_public_subnet_id_az
   # subnets = local.unique_public_subnet_id_az
@@ -99,16 +99,16 @@ resource "aws_lb" "lb" {
 }
 
 resource "aws_lb_target_group" "lb_target_group" {
-  name     = "tf-example-lb-tg"
-  port     = 8080
-  protocol = "HTTP"
+  name     = var.lb_target_group_name
+  port     = var.app_port
+  protocol = var.protocol
   vpc_id   = var.vpc_id
   target_type = "instance"
   health_check {
     enabled = true
     path                = "/healthz"
-    port                = 8080
-    protocol            = "HTTP"
+    port                = var.app_port
+    protocol            = var.protocol
     healthy_threshold   = 3
     unhealthy_threshold = 3
   }
@@ -117,7 +117,7 @@ resource "aws_lb_target_group" "lb_target_group" {
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "80"
-  protocol          = "HTTP"
+  protocol          = var.protocol
   default_action {
     type = "forward"
     target_group_arn = aws_lb_target_group.lb_target_group.arn
@@ -163,7 +163,7 @@ resource "aws_autoscaling_group" "asg" {
 
 resource "aws_autoscaling_policy" "scale_up" {
   name                   = "scale_up"
-  adjustment_type        = "ChangeInCapacity"
+  adjustment_type        = var.adjustment_type
   autoscaling_group_name = aws_autoscaling_group.asg.name
   scaling_adjustment = "1"
 }
@@ -172,7 +172,7 @@ resource "aws_cloudwatch_metric_alarm" "max_usage_alarm" {
   alarm_name          = "max_usage_alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
-  metric_name         = "CPUUtilization"
+  metric_name         = var.metric_name
   namespace           = "AWS/EC2"
   period              = 120
   statistic           = "Average"
@@ -189,7 +189,7 @@ resource "aws_cloudwatch_metric_alarm" "max_usage_alarm" {
 
 resource "aws_autoscaling_policy" "scale_down" {
   name                   = "scale_down"
-  adjustment_type        = "ChangeInCapacity"
+  adjustment_type        = var.adjustment_type
   autoscaling_group_name = aws_autoscaling_group.asg.name
   scaling_adjustment = "-1"
 }
@@ -198,11 +198,11 @@ resource "aws_cloudwatch_metric_alarm" "min_usage_alarm" {
   alarm_name          = "min_usage_alarm"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 1
-  metric_name         = "CPUUtilization"
+  metric_name         = var.metric_name
   namespace           = "AWS/EC2"
   period              = 120
   statistic           = "Average"
-  threshold           = 2
+  threshold           = 3
 
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.asg.name

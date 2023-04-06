@@ -57,11 +57,6 @@ variable "filter_most_recent" {
   description = "filter_most_recent"
 }
 
-# variable "filter_id" {
-#   type = string
-#   description = "filter_id"
-# }
-
 variable "filter_name_value" {
   type = string
   default = "yumeng_*"
@@ -110,5 +105,70 @@ variable "private_zone" {
   type = bool
   description = "private_zone"
   default = false
+}
+
+variable "instance_type" {
+  type = string
+  description = "instance_type"
+  default = "t2.micro"
+}
+variable "key_name" {
+  type = string
+  description = "key_name"
+  default = "ec2"
+}
+
+variable "associate_public_ip_address" {
+  type = bool
+  default = true
+  description = "associate_public_ip_address"
+}
+
+variable "delete_on_termination" {
+  type = bool
+  default = true
+  description = "delete_on_termination"
+}
+
+variable "lb_name" {
+  type = string
+  description = "lb_name"
+  default = "csye6225-lb"
+}
+
+variable "load_balancer_type" {
+  type = string
+  description = "load_balancer_type"
+  default = "application"
+}
+
+variable "lb_target_group_name" {
+  type = string
+  description = "lb_target_group_name"
+  default = "lb-tg"
+}
+
+variable "app_port" {
+  type = number
+  description = "app_port"
+  default = 8080
+}
+
+variable "protocol" {
+  type = string
+  description = "protocol"
+  default = "HTTP"
+}
+
+variable "adjustment_type" {
+  type = string
+  description = "adjustment_type"
+  default = "ChangeInCapacity"
+}
+
+variable "metric_name" {
+  type = string
+  description = "metric_name"
+  default = "CPUUtilization"
 }
 
