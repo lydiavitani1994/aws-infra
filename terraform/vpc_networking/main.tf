@@ -89,12 +89,37 @@ module "private_subnet_3" {
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = false
   availability_zone = data.aws_availability_zones.available.names[2%local.zone_size]
+  
   tag_name = "private_subnet_3_${aws_vpc.vpc.id}"
 }
+
+# data "aws_availability_zones" "available" {
+#   state = "available"
+# }
+
+# data "aws_subnets" "filtered_public" {
+#   for_each = toset(data.aws_availability_zones.available.zone_ids)
+
+#   filter {
+#     name   = "vpc-id"
+#     values = [aws_vpc.vpc.id]
+#   }
+
+#   filter {
+#     name   = "tag:Name"
+#     values = ["public*"]
+#   }
+
+#   filter {
+#     name   = "availability-zone-id"
+#     values = ["${each.value}"]
+#   }
+# }
 
 locals {
   private_subnet_ids = [module.private_subnet_1.subnet.id, module.private_subnet_2.subnet.id, module.private_subnet_3.subnet.id]
   public_subnet_ids = [module.public_subnet_1.subnet.id, module.public_subnet_2.subnet.id, module.public_subnet_3.subnet.id]
+  unique_public_subnet_id_az = slice(local.public_subnet_ids, 0, local.zone_size)
 }
 
 #NAT Gateway object and attachment of the Elastic IP Address from above
