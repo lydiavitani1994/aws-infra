@@ -29,25 +29,105 @@ data "template_file" "user_data" {
     echo "PROFILE_NAME=${var.iam_instance_profile}" >> /etc/environment
     echo "REGION=${var.region}" >> /etc/environment
     echo "CLOUDWATCH_NAMESPACE=${var.namespace}" >> /etc/environment
+    echo "PROFILE_NAME=${var.profile_name}" >> /etc/environment
+    echo "AUTO_SCALING_GROUP_NAME=${var.aws_autoscaling_group_name}" >> /etc/environment
     sudo source /etc/environment
     
     EOF
 }
 
+# # echo "LAUNCH_TEMPLATE_ID=${aws_launch_template.launch_template.id}" >> /etc/environment
+  #  
+  #
 
-# sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
-    #   -a fetch-config \
-    #   -m ec2 \
-    #   -c file:${var.cloudwatch_config_path} \
-    #   -s
 
-# Launch Configuration - launch template
+data "aws_caller_identity" "current" {}
+
+# output "account_id" {
+#   value = data.aws_caller_identity.current.account_id
+# }
+
+resource "aws_kms_key" "ebs_kms_key" {
+  description          = "ebs_kms_key"
+  deletion_window_in_days = 10
+  # key_usage            = "ENCRYPT_DECRYPT"
+  # customer_master_key_spec = "RSA_2048"
+  policy = jsonencode(
+    {
+    "Id": "key-consolepolicy-3",
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Enable IAM User Permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow use of the key",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing",
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+                ]
+            },
+            "Action": [
+                "kms:Encrypt",
+                "kms:Decrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:DescribeKey"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow attachment of persistent resources",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing",
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+                ]
+            },
+            "Action": [
+                "kms:CreateGrant",
+                "kms:ListGrants",
+                "kms:RevokeGrant"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "Bool": {
+                    "kms:GrantIsForAWSResource": "true"
+                }
+            }
+        }
+    ]
+})
+}
+
 resource "aws_launch_template" "launch_template" {
   image_id = data.aws_ami.aws_linux_2.id
   instance_type = var.instance_type
   key_name = var.key_name
+  update_default_version = true
   # vpc_security_group_ids = [var.app_security_group_id]
   user_data = base64encode(data.template_file.user_data.rendered)
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      encrypted = true
+      kms_key_id = aws_kms_key.ebs_kms_key.arn
+      delete_on_termination = var.delete_on_termination
+      volume_size           = var.volume_size
+      volume_type           = var.volume_type
+    }
+  }
   network_interfaces {  # AssociatePublicIpAddress
     associate_public_ip_address = var.associate_public_ip_address
     security_groups = [var.app_security_group_id]
@@ -58,34 +138,6 @@ resource "aws_launch_template" "launch_template" {
     name = var.iam_instance_profile
   }
 }
-
-# data "aws_availability_zones" "available" {
-#   state = "available"
-# }
-
-# data "aws_subnets" "filtered_public" {
-#   for_each = toset(data.aws_availability_zones.available.zone_ids)
-
-#   filter {
-#     name   = "vpc-id"
-#     values = [var.vpc_id]
-#   }
-
-#   filter {
-#     name   = "tag:Name"
-#     values = ["public*"]
-#   }
-
-#   filter {
-#     name   = "availability-zone-id"
-#     values = ["${each.value}"]
-#   }
-# }
-
-# locals {
-#   unique_public_subnet_id_az = [for k, v in data.aws_subnets.filtered_public : v.ids[0]]
-# }
-
 
 resource "aws_lb" "lb" {
   name = var.lb_name
@@ -114,20 +166,43 @@ resource "aws_lb_target_group" "lb_target_group" {
   }
 }
 
-resource "aws_lb_listener" "front_end" {
+data "aws_acm_certificate" "rsa_2048" {
+  domain      = "${var.profile_name}.${var.domain}"
+  key_types = ["RSA_2048"]
+  most_recent = true
+}
+
+# resource "aws_lb_listener" "lb_listener_http" {
+#   load_balancer_arn = aws_lb.lb.arn
+#   port              = "80"
+#   protocol          = var.protocol
+#   default_action {
+#     type = "forward"
+#     target_group_arn = aws_lb_target_group.lb_target_group.arn
+#   }
+# }
+
+resource "aws_lb_listener" "lb_listener_https" {
   load_balancer_arn = aws_lb.lb.arn
-  port              = "80"
-  protocol          = var.protocol
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.rsa_2048.arn
   default_action {
     type = "forward"
     target_group_arn = aws_lb_target_group.lb_target_group.arn
   }
 }
 
+# resource "aws_lb_listener_certificate" "lb_listener_certificate" {
+#   listener_arn    = aws_lb_listener.lb_listener_https.arn
+#   certificate_arn = data.aws_acm_certificate.rsa_2048.arn
+# }
+
 
 resource "aws_autoscaling_group" "asg" {
 
-  name = "csye6225-asg-spring2023"
+  name = var.aws_autoscaling_group_name
   max_size                  = 3
   min_size                  = 1
   desired_capacity = 1
@@ -146,20 +221,6 @@ resource "aws_autoscaling_group" "asg" {
 
   target_group_arns = [aws_lb_target_group.lb_target_group.arn]
 }
-
-# resource "aws_autoscaling_policy" "asg_cpu_policy" {
-#   name = "csye6225-asg-cpu"
-#   policy_type = "TargetTrackingScaling"
-#   autoscaling_group_name = aws_autoscaling_group.asg.name
-#   adjustment_type = "ChangeInCapacity"
-  
-#   target_tracking_configuration {
-#     predefined_metric_specification {
-#       predefined_metric_type = "ASGAverageCPUUtilization"
-#     }
-#     target_value = 2.0
-#   }
-# }
 
 resource "aws_autoscaling_policy" "scale_up" {
   name                   = "scale_up"
