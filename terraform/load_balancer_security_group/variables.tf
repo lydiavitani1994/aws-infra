@@ -15,10 +15,10 @@ variable "vpc_id" {
   description = "aws_vpc_id"
 }
 
-# variable "source_security_group_id" {
-#   type        = string
-#   description = "source_security_group_id"
-# }
+variable "destination_security_group_id" {
+  type        = string
+  description = "destination_security_group_id"
+}
 
 variable "vpc_cidr_block" {
   type        = string

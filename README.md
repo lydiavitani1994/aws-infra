@@ -7,3 +7,10 @@
  5. go to VPCs, and you will see all new created resources
  6. if want to create multiple vpc, git clone to another dir and do the above again
  7. terraform destroy
+
+ ## The command to import the certificate：
+ aws acm import-certificate --certificate fileb://demo_yumenghuang_me.crt \
+      --certificate-chain fileb://demo_yumenghuang_me.ca-bundle \
+      --private-key fileb://private.key \
+      --region us-west-1 \
+      --profile demo

@@ -26,7 +26,7 @@ variable "source_security_group_id" {
   description = "source_security_group_id"
 }
 
-# variable "des_security_group_id" {
-#   type        = string
-#   description = "des_security_group_id"
-# }
+variable "destination_security_group_id" {
+  type        = string
+  description = "destination_security_group_id"
+}

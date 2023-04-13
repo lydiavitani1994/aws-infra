@@ -33,6 +33,11 @@ variable "iam_instance_profile" {
   description = "iam_instance_profile_name"
 }
 
+variable "iam_role_arn" {
+  type = string
+  description = "iam_role_arn"
+}
+
 
 variable "region" {
   type = string
@@ -124,12 +129,6 @@ variable "associate_public_ip_address" {
   description = "associate_public_ip_address"
 }
 
-variable "delete_on_termination" {
-  type = bool
-  default = true
-  description = "delete_on_termination"
-}
-
 variable "lb_name" {
   type = string
   description = "lb_name"
@@ -170,5 +169,28 @@ variable "metric_name" {
   type = string
   description = "metric_name"
   default = "CPUUtilization"
+}
+
+variable "delete_on_termination" {
+  type = bool
+  default = true
+  description = "delete_on_termination"
+}
+
+variable "volume_size" {
+  type = number
+  default = 50
+  description = "volume_size"
+}
+variable "volume_type" {
+  type = string
+  default = "gp2"
+  description = "volume_type"
+}
+
+variable "aws_autoscaling_group_name" {
+  type = string
+  default = "csye6225-asg-spring2023"
+  description = "aws_autoscaling_group_name"
 }
 
